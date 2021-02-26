@@ -1,0 +1,46 @@
+version: '3.7'
+services:
+
+  postgres:
+    image: 'postgres:alpine'
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+    ports:
+      - 9095:5432
+    environment:
+      POSTGRES_USER: tchaki
+      POSTGRES_PASSWORD: segura
+      POSTGRES_DB: tchaki
+      POSTGRES_HOST: postgres
+    networks:
+      - backend
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-volume:/etc/prometheus/
+    ports:
+      - "9090:9090"
+    networks:
+      - backend
+
+  grafana:
+    image: grafana/grafana
+    volumes:
+      - grafana-volume:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - backend
+
+volumes:
+  grafana-volume:
+  prometheus-volume:
+  postgres-volume:
+
+networks:
+  backend:
+    driver: bridge
